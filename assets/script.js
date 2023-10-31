@@ -1,3 +1,5 @@
+apiKey = "1ebabe5e0798007005faf526f4d4fa9b";
+
 $(document).ready(function() {
     //created search button feature to search cities
     $("#search-btn").on("click", function(){
@@ -6,6 +8,7 @@ $(document).ready(function() {
         //created an empty value input field
         $("#search-text").val("");
         forecastFunction(searchEngine);
+        weatherFunction(searchEngine);
     })
 })
 
@@ -20,7 +23,7 @@ $(document).ready(function() {
 
 
 //be able to pull previous searches from local storage
- var searchHistory = JSON.parse(localStorage.getItem("searchHistory")) || [];
+ var searchHistory = JSON.parse(localStorage.getItem("history")) || [];
 
 if (searchHistory.length > 0) {
     forecastFunction(searchHistory[searchHistory.length - 1]);
@@ -44,7 +47,6 @@ function newRow(text) {
 
 
 
-apiKey = "1ebabe5e0798007005faf526f4d4fa9b";
 
 function forecastFunction(searchEngine) {
     $.ajax({
@@ -63,30 +65,29 @@ function forecastFunction(searchEngine) {
         $("#currentDay").empty();
 
         var titleEl = $("<h3>").addClass("card-title").text(data.name + " (" + new Date().toLocaleDateString() + ")" );
-        var imageEl = $("<img>").attr("src", "https://openweathermap.org/img/w/" + dataweather[0].icon + ".png");
+        var imageEl = $("<img>").attr("src", "https://openweathermap.org/img/w/" + data.weather[0].icon + ".png");
 
 
         var card = $("<div>").addClass("card");
         var cardBody = $("<div>").addClass("card-body");
-
-
         var windEl = $("<p>").addClass("card-text").text("Wind Speed: " + data.wind.speed + " MPH");
         var humidityEl = $("<p>").addClass("card-text").text("Humidity: " + data.main.humidity + " %");
         var tempEl = $("<p>").addClass("card-text").text("Temperature: " + data.main.temp + " K");
 
-        var longEl = data.coord.longEl;
-        var latEl = data.coord.latEl;
+        var long = data.coord.lon;
+        var lat = data.coord.lat;
+        //console.log(data.coord);
 
         $.ajax({
             type: "GET",
-            url: "https://api.openweathermap.org/data/2.5/uvi?appid=" + apiKey + "&lat=" + latEl + "&lon=" + longEl,
+            url: "https://api.openweathermap.org/data/2.5/uvi?appid=" + apiKey + "&lat=" + lat + "&lon=" + long,
 
-        }).then(function (reponse) {
+        }).then(function (response) {
             console.log(response);
         })
 
-        titleEl.append(img);
-        cardBody.appent(titleEl, tempEl, humidityEl, windEl);
+        titleEl.append(imageEl);
+        cardBody.append(titleEl, tempEl, humidityEl, windEl);
         card.append(cardBody);
         $("#currentDay").append(card);
         console.log(data);
@@ -101,8 +102,27 @@ function forecastFunction(searchEngine) {
 
         }).then(function (data) {
             console.log(data);
-            $("#weather-forecast").html("h4 class=\"mt-3\">5-Day Forecast:</h4>").append("<div class=\"row\">");
+            $("#weather-forecast").html("<h4 class=\"mt-3\">5-Day Forecast:</h4>").append("<div class=\"row\">");
 
+            for (var i = 0; i < data.list.length; i++) {
+                if (data.list[i].dt_txt.indexOf("15:00:00") !== -1) {
+
+                    var cardTitleEl = $("<h3>").addClass("card-title").text(new Date(data.list[i].dt_text).toLocaleDateString());
+                    var cardImgEl = $("<img>").attr("src", "https://openweathermap.org/img/w/" + data.list[i].weather[0].icon + ".png");
+                    var colFiveEl = $("<div>").addClass("col-md-2.5");
+                    var cardFiveEl = $("<div>").addClass("card bg-blue text-white");
+                    var cardBodyFiveEl = $("<div>").addClass("card-body p-2");
+                    var humidityFiveEl = $("<p>").addClass("card-text").text("Humidity: " + data.list[i].main.humidity + "%");
+                    var tempFiveEl = $("<p>").addClass("card-text").text("Temperature: " + data.list[i].main.temp + " °F");
+
+
+                    colFiveEl.append(cardFiveEl.append(cardBodyFiveEl.append(cardTitleEl, cardImgEl, tempFiveEl, humidityFiveEl)));
+
+                    $("#weather-forecast .row").append(colFiveEl);
+
+                }
+
+            }
         })
     }
 
