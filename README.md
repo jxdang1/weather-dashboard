@@ -10,6 +10,9 @@ N/A
 
 ## Usage
 
+The application can be viewed via [GitHubPages](https://github.com/jxdang1/weather-dashboard) Users may enter their desired city that will pop up the current forecast as well as the upcoming five days' forecast. Users can also see their history typing the desired city into the search bar and can clear it from storage. 
+
+
 ## Credits
 
 Bootstrap and OpenWeatherMaps
