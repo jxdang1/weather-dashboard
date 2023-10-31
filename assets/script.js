@@ -24,123 +24,49 @@ function searchEngine() {
         fetch("https://api.openweathermap.org/geo/1.0/direct?q=" + citySelection + "&limit=1&appid=" + apiKey)
         .then(function (response) {
             if (response.ok) {
-                response.json().then (function (data){
-                    var long = data.coord.lon;
-                    var lat = data.coord.lat;
-                    //console.log(data.coord);
-                        
-                        var uvResponse = response.value;
-                        var uvIndex = $("<p>").addClass("card-text").text("UV Index: ");
-                        var btn = $("<span>").addClass("btn btn-sm").text(uvResponse);
-            
-            
-                    if (uvResponse < 3) {
-                      btn.addClass("btn-success");
-                    } else if (uvResponse < 7) {
-                      btn.addClass("btn-warning");
-                    } else {
-                      btn.addClass("btn-danger");
+                response.json().then (function (data) {
+                    var lat = data[0].lat;
+                    var long = data[0].lon;
+                    
+                    var cityName = citySelection.charAt(0).toUpperCase() + citySelection.toLowerCase().slice(1);
+
+                    if (!localStorage.getItem(cityName)) {
+                        localStorage.setItem(cityName, lat + "," + long);
+                        var itemSearch = document.createElement("button");
+                        itemSearch.textContent = city;
+                        itemSearch.classList.add("btn");
+                        itemSearch.classList.add("btn-outline-primary");
+
+                        itemHistory.append(itemSearch);
+
+                        var linebreak = document.createElement("br");
+                        itemHistory.append(linebreak);
+
+
+
                     }
-            
-                    cardBody.append(uvIndex);
-                    $("#currentDay .card-body").append(uvIndex.append(btn));
-            
-                  });
-            
-            
-                    titleEl.append(imageEl);
-                    cardBody.append(titleEl, tempEl, humidityEl, windEl);
-                    card.append(cardBody);
-                    $("#currentDay").append(card);
-                    console.log(data);
-                });
-            
-            }
-    }
-        //created an empty value input field
-    
-    $("#search-btn").keypress(function(event) {
-        var keycode = (event.keyCode ? event.keyCode : event.which);
-        if (keycode === 13) {
-            forecastFunction(searchEngine);
-            weatherFunction(searchEngine);
 
-        }
-    });
-
-
-//be able to pull previous searches from local storage
- var searchHistory = JSON.parse(localStorage.getItem("history")) || [];
-
-if (searchHistory.length > 0) {
-    forecastFunction(searchHistory[searchHistory.length - 1]);
-}
-
-//for loop that creates a row for each element is in the history array when searching places (searchHistory)
-for (var i = 0; i < searchHistory.length; i++) {
-    newRow(searchHistory[i]);
-}
-
-// created a function that puts cities underneath each other the previous searched city
-function newRow(text) {
-    var listItem = $("<li>").addClass("list-group-item").text(text);
-    $(".search-history").append(listItem);
-}
-
-    $(".search-history").on("click", "li", function() {
-        forecastFunction($(this).text());
-        weatherFunction($(this).text());
-    });
-
-
-
-
-function forecastFunction(searchEngine) {
-    $.ajax({
-        type:"GET",
-        url: "https://api.openweathermap.org/data/2.5/weather?q=" + searchEngine + "&appid=" + apiKey,
-
-    }).then(function(data) {
-        if (searchHistory.indexOf(searchEngine) === -1) {
-
-            searchHistory.push(searchEngine);
-
-            localStorage.setItem("history", JSON.stringify(searchHistory));
-            newRow(searchEngine);
-        }
-
-        $("#currentDay").empty();
-
-
-
-    function weatherFunction(searchEngine) {
-        $.ajax({
-            type: "GET",
-            url: "https://api.openweathermap.org/data/2.5/forecast?lat=" + lat + "&lon=" + long + "&units=imperial&appid=" + apiKey,
-
-        }).then(function (data) {
-            console.log(data);
-            $("#weather-forecast").html("<h4 class=\"mt-3\">5-Day Forecast:</h4>").append("<div class=\"row\">");
-
-            for (var i = 0; i < data.list.length; i++) {
-                if (data.list[i].dt_txt.indexOf("15:00:00") !== -1) {
-
-                    var cardTitleEl = $("<h3>").addClass("card-title").text(new Date(data.list[i].dt_text).toLocaleDateString());
-                    var cardImgEl = $("<img>").attr("src", "https://openweathermap.org/img/w/" + data.list[i].weather[0].icon + ".png");
-                    var colFiveEl = $("<div>").addClass("col-md-2.5");
-                    var cardFiveEl = $("<div>").addClass("card bg-blue text-white");
-                    var cardBodyFiveEl = $("<div>").addClass("card-body p-2");
-                    var humidityFiveEl = $("<p>").addClass("card-text").text("Humidity: " + data.list[i].main.humidity + "%");
-                    var tempFiveEl = $("<p>").addClass("card-text").text("Temperature: " + data.list[i].main.temp + " °F");
-
-
-                    colFiveEl.append(cardFiveEl.append(cardBodyFiveEl.append(cardTitleEl, cardImgEl, tempFiveEl, humidityFiveEl)));
-
-                    $("#weather-forecast .row").append(colFiveEl);
-
+                        searchItem.addEventListener("click", getCoordinates);
+                    })
                 }
-
-            }
-        })
+            })
+        }
     }
+    
+        function getCoordinates() {
+                    //getting the lat and lon values from localStorage then passing them to weatherFromLatLon
+                var city = this.textContent;
+                var split = localStorage.getItem(city).split(",");
+                var lat = split[0];
+                var long = split[1];
+                weatherFromLatLon(city, lat, long);
+        //created an empty value input field
 
+        }
+
+
+        function weatherFromLatLon (city, lat, long) {
+
+
+        }
+   
