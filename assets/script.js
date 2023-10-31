@@ -60,13 +60,25 @@ function searchEngine() {
                 var lat = split[0];
                 var long = split[1];
                 weatherFromLatLon(city, lat, long);
-        //created an empty value input field
 
         }
 
 
         function weatherFromLatLon (city, lat, long) {
-
-
-        }
+            clearElements();
+                 fetch("https://api.openweathermap.org/data/2.5/forecast?lat=" + lat + "&lon=" + long + "&units=imperial&appid=" + apiKey)
+                .then(function (response) {
+                        if (response.ok) {
+                            response.json().then (function (data) {
+                                var upcomingForecast = [];
+                                 var currentWeather;
+                                     for (let i = 0; i < data.list.length; i++) {
+                                            if (i === 0) {
+                                            currentWeather = data.list[i];
+                                         } else if ((i + 1) % 8 === 0) {
+                                        upcomingForecast.push(data.list[i]);
+                                    }
+                                }
+                            }
+            }    
    
