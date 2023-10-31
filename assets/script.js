@@ -1,17 +1,64 @@
 apiKey = "1ebabe5e0798007005faf526f4d4fa9b";
 
-$(document).ready(function() {
-    //created search button feature to search cities
-    $("#search-btn").on("click", function(){
-        //get value in from search-text input
-        var searchEngine = $("#search-text").val();
-        //created an empty value input field
-        $("#search-text").val("");
-        forecastFunction(searchEngine);
-        weatherFunction(searchEngine);
-    })
-})
+var currentDayContainer = document.getElementById("current-day");
+var fiveForecastContainer = document.getElementById("five-forecast");
+var searchHistory = document.getElementById("search-history");
+var currentHeader = document.getElementById("current-header");
+var currentTempEl = document.getElementById("temp");
+var currentWindEl = document.getElementById("wind");
+var currentHumidEl = document.getElementById("humid");
+var currentIconEl = document.getElementById("icon");
 
+
+function clearElements() {
+    while (fiveForecastContainer.lastChild) {
+        fiveForecastContainer.removeChild(fiveForecastContainer.lastChild);
+    }
+}
+
+function searchEngine() {
+    //created search button feature to search cities
+    var citySelection = document.getElementById("search-text").value;
+        //get value in from search-text input
+    if (citySelection) {
+        fetch("https://api.openweathermap.org/geo/1.0/direct?q=" + citySelection + "&limit=1&appid=" + apiKey)
+        .then(function (response) {
+            if (response.ok) {
+                response.json().then (function (data){
+                    var long = data.coord.lon;
+                    var lat = data.coord.lat;
+                    //console.log(data.coord);
+                        
+                        var uvResponse = response.value;
+                        var uvIndex = $("<p>").addClass("card-text").text("UV Index: ");
+                        var btn = $("<span>").addClass("btn btn-sm").text(uvResponse);
+            
+            
+                    if (uvResponse < 3) {
+                      btn.addClass("btn-success");
+                    } else if (uvResponse < 7) {
+                      btn.addClass("btn-warning");
+                    } else {
+                      btn.addClass("btn-danger");
+                    }
+            
+                    cardBody.append(uvIndex);
+                    $("#currentDay .card-body").append(uvIndex.append(btn));
+            
+                  });
+            
+            
+                    titleEl.append(imageEl);
+                    cardBody.append(titleEl, tempEl, humidityEl, windEl);
+                    card.append(cardBody);
+                    $("#currentDay").append(card);
+                    console.log(data);
+                });
+            
+            }
+    }
+        //created an empty value input field
+    
     $("#search-btn").keypress(function(event) {
         var keycode = (event.keyCode ? event.keyCode : event.which);
         if (keycode === 13) {
@@ -64,41 +111,12 @@ function forecastFunction(searchEngine) {
 
         $("#currentDay").empty();
 
-        var titleEl = $("<h3>").addClass("card-title").text(data.name + " (" + new Date().toLocaleDateString() + ")" );
-        var imageEl = $("<img>").attr("src", "https://openweathermap.org/img/w/" + data.weather[0].icon + ".png");
 
-
-        var card = $("<div>").addClass("card");
-        var cardBody = $("<div>").addClass("card-body");
-        var windEl = $("<p>").addClass("card-text").text("Wind Speed: " + data.wind.speed + " MPH");
-        var humidityEl = $("<p>").addClass("card-text").text("Humidity: " + data.main.humidity + " %");
-        var tempEl = $("<p>").addClass("card-text").text("Temperature: " + data.main.temp + " K");
-
-        var long = data.coord.lon;
-        var lat = data.coord.lat;
-        //console.log(data.coord);
-
-        $.ajax({
-            type: "GET",
-            url: "https://api.openweathermap.org/data/2.5/uvi?appid=" + apiKey + "&lat=" + lat + "&lon=" + long,
-
-        }).then(function (response) {
-            console.log(response);
-        })
-
-        titleEl.append(imageEl);
-        cardBody.append(titleEl, tempEl, humidityEl, windEl);
-        card.append(cardBody);
-        $("#currentDay").append(card);
-        console.log(data);
-    });
-
-}
 
     function weatherFunction(searchEngine) {
         $.ajax({
             type: "GET",
-            url: "https://api.openweathermap.org/data/2.5/forecast?q=" + searchEngine + "&appid=" + apiKey + "&units=imperial",
+            url: "https://api.openweathermap.org/data/2.5/forecast?lat=" + lat + "&lon=" + long + "&units=imperial&appid=" + apiKey,
 
         }).then(function (data) {
             console.log(data);
