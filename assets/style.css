@@ -1,9 +1,29 @@
-#forecast {
-    position: absolute;
-    left: -3%;
+h1 {
+    text-align: center;
+    background-color: rgb(129, 129, 221);
+    color: white;
+    padding: 10px;
 }
 
-h1 {
-    margin-bottom: 0%;
-    background-color: rgb(209, 125, 125);
+.forecast {
+    background-color: rgb(0, 139, 104);
+    color: white;
+    padding: 10px;
+    
+}
+
+.container {
+    width: 100%;
+}
+
+#current-weather {
+    border: 1px solid black;
+    font-weight: bold;
+    padding: 2px;
+    margin-bottom: 2px;
+    background-color: rgb(201, 151, 151);
+}
+
+.btn {
+    margin-bottom: 2px;
 }
